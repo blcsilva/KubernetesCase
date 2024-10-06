@@ -1,11 +1,37 @@
-provider "kubernetes" {
-  host                   = var.k8s_host
-  token                  = var.k8s_token
-  cluster_ca_certificate = base64decode(var.k8s_ca_certificate)
+terraform {
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 3.5"  # Exemplo, ajuste conforme necessário
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.0"  # Ajuste conforme necessário
+    }
+  }
 }
 
-resource "kubernetes_namespace" "nginx_namespace" {
-  metadata {
-    name = "nginx"
+provider "google" {
+  credentials = file(var.gcp_service_account_key_path)  # Certifique-se de que esta variável esteja definida
+  project     = var.gcp_project_id
+  region      = var.gcp_region
+}
+
+resource "google_container_cluster" "primary" {
+  name     = var.gcp_cluster_name
+  location = var.gcp_region
+
+  initial_node_count = 1
+
+  node_config {
+    machine_type = "e2-medium"
   }
+}
+
+data "google_client_config" "default" {}
+
+provider "kubernetes" {
+  host                   = google_container_cluster.primary.endpoint
+  token                  = data.google_client_config.default.access_token
+  cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
 }

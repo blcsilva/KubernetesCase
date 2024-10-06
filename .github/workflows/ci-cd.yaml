@@ -10,10 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3  # Atualizando para v3
+        uses: actions/checkout@v3
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: 'latest'
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2  # Atualizando para v2
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.0.0
 
@@ -25,20 +32,24 @@ jobs:
         run: terraform apply -auto-approve
         working-directory: terraform
         env:
-          TF_VAR_k8s_host: ${{ secrets.K8S_HOST }}
-          TF_VAR_k8s_token: ${{ secrets.K8S_TOKEN }}
-          TF_VAR_k8s_ca_certificate: ${{ secrets.K8S_CA_CERTIFICATE }}
+          TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+          TF_VAR_region: ${{ secrets.GCP_REGION }}
+          TF_VAR_cluster_name: ${{ secrets.GCP_CLUSTER_NAME }}
 
   deploy:
     runs-on: ubuntu-latest
     needs: terraform
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3  # Atualizando para v3
+        uses: actions/checkout@v3
 
       - name: Set up kubectl
         run: |
-          echo "${{ secrets.K8S_CA_CERTIFICATE }}" | base64 --decode > ca.crt
-          echo "${{ secrets.K8S_TOKEN }}" > token
-          kubectl config set-cluster my-cluster --server=${{ secrets.K8S_HOST }} --certificate-authority=ca.crt
-          kubectl config set-credentials m
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 --decode > gcloud-key.json
+          gcloud auth activate-service-account --key-file=gcloud-key.json
+          gcloud container clusters get-credentials ${{ secrets.GCP_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Deploy Nginx
+        run: |
+          kubectl apply -f kubernetes/nginx-deployment.yaml
+          kubectl apply -f kubernetes/nginx-service.yaml

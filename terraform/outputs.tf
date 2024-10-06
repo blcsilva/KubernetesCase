@@ -1,5 +1,5 @@
 output "kubeconfig" {
-  value = <<EOT
+  value     = <<EOT
 apiVersion: v1
 clusters:
 - cluster:
@@ -19,4 +19,6 @@ users:
   user:
     token: ${data.google_client_config.default.access_token}
 EOT
+  sensitive = true  # Adicione esta linha para marcar a saída como sensível
 }
+

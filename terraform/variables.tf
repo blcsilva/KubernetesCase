@@ -17,3 +17,8 @@ variable "gcp_service_account_key_path" {
   description = "Caminho para a chave JSON do serviço de conta da GCP"
   type        = string
 }
+
+variable "gcp_service_account_key_json" {
+  description = "Conteúdo da chave JSON do serviço de conta da GCP"
+  type        = string
+}

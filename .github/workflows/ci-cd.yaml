@@ -33,25 +33,4 @@ jobs:
           TF_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
           TF_VAR_gcp_region: ${{ secrets.GCP_REGION }}
           TF_VAR_gcp_cluster_name: ${{ secrets.GCP_CLUSTER_NAME }}
-          TF_VAR_gcp_service_account_key_path: "/home/runner/work/KubernetesCase/KubernetesCase/gha-creds-245c03fa0fb938d7.json"  # Ajuste conforme necessário
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: terraform
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-
-      - name: Set up kubectl
-        run: |
-          gcloud container clusters get-credentials ${{ secrets.GCP_CLUSTER_NAME }} --zone ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }}
-
-      - name: Deploy Nginx
-        run: |
-          kubectl apply -f kubernetes/nginx-deployment.yaml
-          kubectl apply -f kubernetes/nginx-service.yaml
+          TF_VAR_gcp_service_account_key_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}  # Adicione esta linha

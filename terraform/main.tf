@@ -4,15 +4,13 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 3.5"  # Exemplo, ajuste conforme necessário
     }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "~> 2.0"  # Ajuste conforme necessário
-    }
   }
 }
 
+
+
 provider "google" {
-  credentials = file(var.gcp_service_account_key_path)  # Certifique-se de que esta variável esteja definida
+  credentials = file(var.gcp_service_account_key_path)
   project     = var.gcp_project_id
   region      = var.gcp_region
 }
@@ -28,10 +26,11 @@ resource "google_container_cluster" "primary" {
   }
 }
 
-data "google_client_config" "default" {}
 
 provider "kubernetes" {
   host                   = google_container_cluster.primary.endpoint
   token                  = data.google_client_config.default.access_token
   cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
 }
+
+data "google_client_config" "default" {}

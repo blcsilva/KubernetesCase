@@ -33,6 +33,7 @@ jobs:
           TF_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
           TF_VAR_gcp_region: ${{ secrets.GCP_REGION }}
           TF_VAR_gcp_cluster_name: ${{ secrets.GCP_CLUSTER_NAME }}
+          TF_VAR_gcp_service_account_key_path: "/home/runner/work/KubernetesCase/KubernetesCase/gha-creds-245c03fa0fb938d7.json"  # Ajuste conforme necessário
 
   deploy:
     runs-on: ubuntu-latest

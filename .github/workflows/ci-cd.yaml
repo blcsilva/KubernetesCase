@@ -15,10 +15,7 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-
-      - name: Set up Google Cloud SDK
-        run: gcloud components install beta
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}  # Passa a chave do serviço como segredo
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -33,9 +30,9 @@ jobs:
         run: terraform apply -auto-approve
         working-directory: terraform
         env:
-          TF_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
-          TF_VAR_gcp_region: ${{ secrets.GCP_REGION }}
-          TF_VAR_gcp_cluster_name: ${{ secrets.GCP_CLUSTER_NAME }}
+          TF_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}      # Passa o ID do projeto como segredo
+          TF_VAR_gcp_region: ${{ secrets.GCP_REGION }}              # Passa a região como segredo
+          TF_VAR_gcp_cluster_name: ${{ secrets.GCP_CLUSTER_NAME }}  # Passa o nome do cluster como segredo
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,7 +44,7 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}  # Passa a chave do serviço como segredo
 
       - name: Set up kubectl
         run: |

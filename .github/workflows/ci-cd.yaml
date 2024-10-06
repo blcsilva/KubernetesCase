@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # Atualizando para v3
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2  # Atualizando para v2
         with:
           terraform_version: 1.0.0
 
@@ -34,18 +34,11 @@ jobs:
     needs: terraform
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # Atualizando para v3
 
       - name: Set up kubectl
         run: |
           echo "${{ secrets.K8S_CA_CERTIFICATE }}" | base64 --decode > ca.crt
           echo "${{ secrets.K8S_TOKEN }}" > token
           kubectl config set-cluster my-cluster --server=${{ secrets.K8S_HOST }} --certificate-authority=ca.crt
-          kubectl config set-credentials my-user --token=$(cat token)
-          kubectl config set-context my-context --cluster=my-cluster --user=my-user
-          kubectl config use-context my-context
-
-      - name: Deploy Nginx
-        run: |
-          kubectl apply -f kubernetes/nginx-deployment.yaml
-          kubectl apply -f kubernetes/nginx-service.yaml
+          kubectl config set-credentials m
